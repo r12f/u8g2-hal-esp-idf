@@ -146,9 +146,14 @@ uint8_t u8g2_esp32_i2c_byte_cb(u8x8_t* u8x8,
       ESP_LOGI(TAG, "i2c_param_config %d", conf.mode);
       ESP_ERROR_CHECK(i2c_param_config(I2C_MASTER_NUM, &conf));
       ESP_LOGI(TAG, "i2c_driver_install %d", I2C_MASTER_NUM);
-      ESP_ERROR_CHECK(i2c_driver_install(I2C_MASTER_NUM, conf.mode,
+      esp_err_t result = i2c_driver_install(I2C_MASTER_NUM, conf.mode,
                                          I2C_MASTER_RX_BUF_DISABLE,
-                                         I2C_MASTER_TX_BUF_DISABLE, 0));
+                                         I2C_MASTER_TX_BUF_DISABLE, 0);
+      if (result == ESP_FAIL) {
+        ESP_LOGW(TAG, "I2C driver already installed. Try to reuse the existing driver config.");
+      } else {
+        ESP_ERROR_CHECK(result);
+      }
       break;
     }
 
